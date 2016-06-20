@@ -19,7 +19,16 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	message := string(body[:])
 	fmt.Println(message)
 }
+
 func main() {
-	http.HandleFunc("/", handler)
-	http.ListenAndServe(":80", nil)
+	keywords := []string{"h'it", "the", "ye", "button"}
+	err := downloadGif(keywords, "temp.gif")
+	// err := downloadFile("temp.gif", "http://media3.giphy.com/media/xTiTngCK4tZaoHNlao/giphy.gif")
+	// defer destroyFile("temp.gif")
+	if err != nil {
+		os.Exit(1)
+	}
+	// fmt.Println("Done")
+	// http.HandleFunc("/", handler)
+	// http.ListenAndServe(":80", nil)
 }
