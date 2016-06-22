@@ -4,6 +4,8 @@ import (
   "os"
   "encoding/json"
   "io"
+  "io/ioutil"
+  "bytes"
   "fmt"
   "net/http"
   "net/url"
@@ -63,7 +65,7 @@ func downloadGif(keywords []string, file string) error {
 		fmt.Println(err)
 		return err
 	}
-	err = downloadFile("temp.gif", resp.Data.Images.Original.Url)
+	err = downloadFile(file, resp.Data.Images.Down.Url)
 	// err := downloadFile(file, url)
 	return err
 
@@ -76,4 +78,33 @@ func destroyFile(filepath string) error {
 	}
 	fmt.Println("File", filepath, "destroyed")
 	return err
+}
+
+func groupmeImageHost(file string) (img string, err error) {
+  buf, err := ioutil.ReadFile(file)
+  if err != nil {
+    return "", err
+  }
+  // fi := string(buf)
+  // v := url.Values{}
+  // v.Add("file", fi)
+
+  token := os.Getenv("GROUPME_ACCESS_TOKEN")
+  url := fmt.Sprintf("https://image.groupme.com/pictures?access_token=%s", token)
+
+  req, err := http.NewRequest("POST", url, bytes.NewBuffer(buf))
+
+  client := &http.Client{}
+  resp, err := client.Do(req)
+  if err != nil {
+      panic(err)
+  }
+  defer resp.Body.Close()
+  fmt.Println(resp.Body)
+  bin, _ := ioutil.ReadAll(resp.Body)
+
+  response := GroupmeResponse{}
+  json.Unmarshal(bin, &response)
+  return response.Payld.Url, nil
+
 }

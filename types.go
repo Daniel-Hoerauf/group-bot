@@ -1,5 +1,29 @@
 package main
 
+type GroupmePost struct {
+	Id 			string 		`json:"bot_id"`
+	Text 		string 		`json:"text"`
+	Attachment	[]PostImg 	`json:"attachments"`
+}
+
+type PostImg struct {
+	Typ 	string 		`json:"type"`
+	Url 	string		`json:"url"`	
+}
+
+type GroupmeInput struct {
+	File 	string		`json:"file"`
+}
+
+type GroupmeResponse struct {
+	Payld	GroupData	`json:"payload"`
+}
+
+type GroupData struct {
+	Url 	string		`json:"url"`
+	Pic		string		`json:"picture_url"`
+}
+
 type GiphyResponse struct {
 	Data	GiphyData	`json:"data"`
 	Meta	GiphyMeta 	`json:"meta"` 
