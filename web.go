@@ -20,9 +20,9 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	message := string(body[:])
+	message := body[:]
 	response := GroupmeContent{}
-	json.Unmarshal(bin, &response)
+	json.Unmarshal(message, &response)
 	fmt.Println(response)
 }
 
