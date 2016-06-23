@@ -11,6 +11,7 @@ type GroupmeContent struct {
 	Sender 		string		`json:"sender_type"`
 	Source 		string		`json:"source_guid"`
 	System		string		`json:"system"`
+	Text 		string 		`json:"text"`
 	User 		string		`json:"user_id"`
 }
 

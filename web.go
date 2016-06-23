@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"fmt"
 	"net/http"
+	"net/url"
 	"encoding/json"
 	"bytes"
 	"strings"
@@ -23,13 +24,29 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	message := body[:]
 	response := GroupmeContent{}
 	json.Unmarshal(message, &response)
-	fmt.Println(response)
+	go giphy(response.Text)
+	fmt.Println(response.Text)
+}
+
+func giphy(message string) {
+	if message == "" {
+		return
+	}
+	tokens := string.Split(message)
+	if tokens[0] == "/giphy" {
+		escaped_tokens := make([]string, len(tokens) - 1)
+		for i, word := tokens[1:] {
+			escaped_tokens[i] = url.QueryEscape(word)
+		}
+		callGiphy(escaped_tokens)
+
+	}
 }
 
 func postGif(imgLoc string) (error) {
 	postURL := "https://api.groupme.com/v3/bots/post"
 	token := os.Getenv("GROUPME_BOT_TOKEN")
-	params := GroupmePost{token, "Hitler was an ok dude and a gifted artist", []PostImg{PostImg{"image", imgLoc}}}
+	params := GroupmePost{token, "", []PostImg{PostImg{"image", imgLoc}}}
 	binData, _ := json.Marshal(params)
 	fmt.Println(string(binData))
 	req, err := http.NewRequest("Post", postURL,  bytes.NewBuffer(binData))

@@ -39,8 +39,8 @@ func downloadFile(filepath string, url string) (err error) {
 
 func buildUrl(keywords []string) (giphyURL string) {
 	args := strings.Join(keywords[:],"+")
-	query := url.QueryEscape(args)
-	url := fmt.Sprintf("http://api.giphy.com/v1/gifs/translate?s=%s&api_key=dc6zaTOxFJmzC", query)
+	// query := url.QueryEscape(args)
+	url := fmt.Sprintf("http://api.giphy.com/v1/gifs/translate?s=%s&api_key=dc6zaTOxFJmzC", args)
 	return url
 } 
 
