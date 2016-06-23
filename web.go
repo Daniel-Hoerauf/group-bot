@@ -32,12 +32,13 @@ func giphy(message string) {
 	if message == "" {
 		return
 	}
-	tokens := string.Split(message)
+	tokens := strings.Split(message, " ")
 	if tokens[0] == "/giphy" {
 		escaped_tokens := make([]string, len(tokens) - 1)
-		for i, word := tokens[1:] {
+		for i, word := range tokens[1:] {
 			escaped_tokens[i] = url.QueryEscape(word)
 		}
+		fmt.Println(escaped_tokens)
 		callGiphy(escaped_tokens)
 
 	}
