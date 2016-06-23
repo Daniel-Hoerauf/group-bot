@@ -1,5 +1,24 @@
 package main
 
+type GroupmeContent struct {
+	Attachment 	[]Attach 	`json:"attachments"`
+	Avatar		string  	`json:"avatar_url"`
+	Creation 	string 		`json:"created_date"`
+	Group 		string 		`json:"group_id"`	
+	Id 			string		`json:"id"`
+	Name 		string		`json:"name"`
+	SenderId	string		`json:"sender_id"`
+	Sender 		string		`json:"sender_type"`
+	Source 		string		`json:"source_guid"`
+	System		string		`json:"system"`
+	User 		string		`json:"user_id"`
+}
+
+type Attach struct {
+	Type 		string 		`json:"type"`
+	Url 		string 		`json:"url,omitempty"`
+}
+
 type GroupmePost struct {
 	Id 			string 		`json:"bot_id"`
 	Text 		string 		`json:"text"`

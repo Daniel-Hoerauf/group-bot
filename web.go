@@ -21,13 +21,15 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		os.Exit(1)
 	}
 	message := string(body[:])
-	fmt.Println(message)
+	response := GroupmeContent{}
+	json.Unmarshal(bin, &response)
+	fmt.Println(response)
 }
 
 func postGif(imgLoc string) (error) {
 	postURL := "https://api.groupme.com/v3/bots/post"
-	token := os.Getenv("GROUPME_ACCESS_TOKEN")
-	params := GroupmePost{token, "Make America Great Again", []PostImg{PostImg{"image", imgLoc}}}
+	token := os.Getenv("GROUPME_BOT_TOKEN")
+	params := GroupmePost{token, "Hitler was an ok dude and a gifted artist", []PostImg{PostImg{"image", imgLoc}}}
 	binData, _ := json.Marshal(params)
 	fmt.Println(string(binData))
 	req, err := http.NewRequest("Post", postURL,  bytes.NewBuffer(binData))
@@ -61,13 +63,13 @@ func callGiphy(keywords []string) error {
 
 
 func main() {
-	keywords := []string{"Make", "America", "Great", "Again"}
-	callGiphy(keywords)
+	// keywords := []string{"Hitler", "was", "a", "cool", "dude"}
+	// callGiphy(keywords)
 	
 
 	// err := downloadFile("temp.gif", "http://media3.giphy.com/media/xTiTngCK4tZaoHNlao/giphy.gif")
 	// defer destroyFile("temp.gif")
 	// fmt.Println("Done")
-	// http.HandleFunc("/", handler)
-	// http.ListenAndServe(":80", nil)
+	http.HandleFunc("/", handler)
+	http.ListenAndServe(":80", nil)
 }
