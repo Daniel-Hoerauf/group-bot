@@ -60,9 +60,7 @@ func postGif(imgLoc string) (error) {
 }
 
 func callGiphy(keywords []string) error {
-	// group := "20745774"
 	file := strings.Join(keywords[:],"+") + ".gif"
-	// file = url.QueryEscape(file)
 	err := downloadGif(keywords, file)
 	if err != nil {
 		fmt.Println("ERROR", err)
@@ -81,13 +79,6 @@ func callGiphy(keywords []string) error {
 
 
 func main() {
-	// keywords := []string{"Hitler", "was", "a", "cool", "dude"}
-	// callGiphy(keywords)
-	
-
-	// err := downloadFile("temp.gif", "http://media3.giphy.com/media/xTiTngCK4tZaoHNlao/giphy.gif")
-	// defer destroyFile("temp.gif")
-	// fmt.Println("Done")
 	http.HandleFunc("/", handler)
 	http.ListenAndServe(":80", nil)
 }
