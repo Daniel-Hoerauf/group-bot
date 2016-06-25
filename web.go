@@ -1,15 +1,14 @@
 package main
 
 import (
-	"os"
-	"io/ioutil"
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
-	"encoding/json"
-	"bytes"
+	"os"
 	"strings"
-
 )
 
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -34,7 +33,7 @@ func giphy(message string) {
 	}
 	tokens := strings.Split(message, " ")
 	if tokens[0] == "/giphy" {
-		escaped_tokens := make([]string, len(tokens) - 1)
+		escaped_tokens := make([]string, len(tokens)-1)
 		for i, word := range tokens[1:] {
 			escaped_tokens[i] = url.QueryEscape(word)
 		}
@@ -44,30 +43,30 @@ func giphy(message string) {
 	}
 }
 
-func postGif(imgLoc string) (error) {
+func postGif(imgLoc string) error {
 	postURL := "https://api.groupme.com/v3/bots/post"
 	token := os.Getenv("GROUPME_BOT_TOKEN")
 	params := GroupmePost{token, "", []PostImg{PostImg{"image", imgLoc}}}
 	binData, _ := json.Marshal(params)
 	fmt.Println(string(binData))
-	req, err := http.NewRequest("Post", postURL,  bytes.NewBuffer(binData))
+	req, err := http.NewRequest("Post", postURL, bytes.NewBuffer(binData))
 	req.Header.Set("Content-Type", "application/json")
 
-    client := &http.Client{}
-    resp, err := client.Do(req)
-    defer resp.Body.Close()
-    return err
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	defer resp.Body.Close()
+	return err
 }
 
 func callGiphy(keywords []string) error {
-	file := strings.Join(keywords[:],"+") + ".gif"
-	err := downloadGif(keywords, file)
+	// file := strings.Join(keywords[:],"+") + ".gif"
+	gif, err := downloadGif(keywords)
 	if err != nil {
 		fmt.Println("ERROR", err)
 		return err
 	}
-	groupmeUrl, err := groupmeImageHost(file)
-	defer destroyFile(file)
+	groupmeUrl, err := groupmeImageHost(gif)
+	// defer destroyFile(file)
 	if err != nil {
 		return err
 	}
@@ -75,8 +74,6 @@ func callGiphy(keywords []string) error {
 	return err
 
 }
-
-
 
 func main() {
 	http.HandleFunc("/", handler)
