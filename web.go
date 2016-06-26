@@ -97,6 +97,6 @@ func main() {
 	}
 	fmt.Println(secrets.Token)
 
-	// http.HandleFunc("/", handler)
-	// http.ListenAndServe(":80", nil)
+	http.HandleFunc("/", handler)
+	http.ListenAndServe(":80", nil)
 }
