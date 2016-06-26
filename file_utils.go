@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"strings"
 )
 
@@ -49,7 +48,8 @@ func downloadGif(keywords []string) (*bytes.Buffer, error) {
 
 func groupmeImageHost(gif *bytes.Buffer) (img string, err error) {
 
-	token := os.Getenv("GROUPME_ACCESS_TOKEN")
+	// token := os.Getenv("GROUPME_ACCESS_TOKEN")
+	token := secrets.Token
 	url := fmt.Sprintf("https://image.groupme.com/pictures?access_token=%s", token)
 
 	req, err := http.NewRequest("POST", url, gif)
