@@ -11,7 +11,7 @@ import (
 
 func buildUrl(keywords []string) (giphyURL string) {
 	args := strings.Join(keywords[:], "+")
-	url := fmt.Sprintf("http://api.giphy.com/v1/gifs/translate?s=%s&api_key=dc6zaTOxFJmzC", args)
+	url := fmt.Sprintf("http://api.giphy.com/v1/gifs/translate?s=%s&api_key=dc6zaTOxFJmzC&rating=r", args)
 	return url
 }
 
