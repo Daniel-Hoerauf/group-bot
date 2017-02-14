@@ -61,6 +61,7 @@ func giphy(message GroupmeContent) {
 	}
 	for _, blacklisted := range secrets.BlackList {
 		if blacklisted == message.SenderId {
+			fmt.Printf("User blocked: %s\n", message.Name)
 			return
 		}
 	}
