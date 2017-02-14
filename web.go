@@ -59,6 +59,11 @@ func giphy(message GroupmeContent) {
 	if message.Text == "" {
 		return
 	}
+	for _, blacklisted := range secrets.BlackList {
+		if blacklisted == message.SenderId {
+			return
+		}
+	}
 	tokens := strings.Split(message.Text, " ")
 	if tokens[0] == "/giphy" {
 		bot_id := getBotId(message.Group)

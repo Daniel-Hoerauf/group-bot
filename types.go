@@ -1,8 +1,9 @@
 package main
 
 type TokenFile struct {
-	Token string     `json:"access_token"`
-	Bots  []GroupBot `json:"bots"`
+	Token     string     `json:"access_token"`
+	Bots      []GroupBot `json:"bots"`
+	BlackList []string   `json:"blacklist"`
 }
 
 type GroupBot struct {
