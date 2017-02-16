@@ -3,51 +3,55 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
 	"strings"
 )
 
-var secrets TokenFile
+var (
+	secrets TokenFile
+	Debug   *log.Logger
+	Error   *log.Logger
+)
 
 func getBotId(group string) string {
+	// Find the bot id associated with the group message recieved from
 	for _, bot := range secrets.Bots {
 		if bot.Group == group {
 			return bot.BotId
 		}
 	}
+	Error.Printf("No bot found for GroupID %s\n", group)
 	return ""
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello world\n")
 	r.ParseForm()
-	fmt.Println("Content received!")
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		Error.Printf("Could not read http body %s\n", err)
+		return
 	}
 	message := body[:]
 	response := GroupmeContent{}
 	json.Unmarshal(message, &response)
 	go giphy(response)
-	fmt.Println(response.Text)
+	response_text, _ := json.MarshalIndent(response, "", "\t")
+	Debug.Printf("Received message!\n%s", response_text)
 }
 
 func callGiphy(keywords []string, bot_id string) error {
-	// file := strings.Join(keywords[:],"+") + ".gif"
 	gif, err := downloadGif(keywords)
 	if err != nil {
-		fmt.Println("ERROR", err)
+		Error.Printf("Could not download GIF: %s", err)
 		return err
 	}
 	groupmeUrl, err := groupmeImageHost(gif)
-	// defer destroyFile(file)
 	if err != nil {
+		Error.Printf("Could not upload GIF: %s", err)
 		return err
 	}
 	err = postGif(groupmeUrl+".large", bot_id)
@@ -59,20 +63,19 @@ func giphy(message GroupmeContent) {
 	if message.Text == "" {
 		return
 	}
-	for _, blacklisted := range secrets.BlackList {
-		if blacklisted == message.SenderId {
-			fmt.Printf("User blocked: %s\n", message.Name)
-			return
-		}
-	}
 	tokens := strings.Split(message.Text, " ")
-	if tokens[0] == "/giphy" {
+	if strings.ToLower(tokens[0]) == "/giphy" {
+		for _, blacklisted := range secrets.BlackList {
+			if blacklisted == message.SenderId {
+				Debug.Printf("User blocked: %s\n", message.Name)
+				return
+			}
+		}
 		bot_id := getBotId(message.Group)
 		escaped_tokens := make([]string, len(tokens)-1)
 		for i, word := range tokens[1:] {
 			escaped_tokens[i] = url.QueryEscape(word)
 		}
-		fmt.Println(escaped_tokens)
 		callGiphy(escaped_tokens, bot_id)
 
 	}
@@ -82,7 +85,6 @@ func postGif(imgLoc string, token string) error {
 	postURL := "https://api.groupme.com/v3/bots/post"
 	params := GroupmePost{token, "", []PostImg{PostImg{"image", imgLoc}}}
 	binData, _ := json.Marshal(params)
-	fmt.Println(string(binData))
 	req, err := http.NewRequest("Post", postURL, bytes.NewBuffer(binData))
 	req.Header.Set("Content-Type", "application/json")
 
@@ -93,16 +95,23 @@ func postGif(imgLoc string, token string) error {
 }
 
 func main() {
+	Debug = log.New(os.Stdout, "GROUP_BOT: ", log.Ldate|log.Ltime)
+	Error = log.New(os.Stderr, "ERROR: ", log.Ldate|log.Ltime)
+
 	content, err := ioutil.ReadFile("secrets.json")
 	if err != nil {
-		fmt.Println(err)
+		Error.Printf("Cannot Read File: %s\n", err)
+		os.Exit(1)
 	}
 	err = json.Unmarshal(content, &secrets)
 	if err != nil {
-		fmt.Println(err)
+		Error.Printf("JSON Parse Error: %s\n", err)
+		os.Exit(1)
 	}
-	fmt.Println(secrets.Token)
+	secrets_text, _ := json.MarshalIndent(secrets, "", "\t")
+	Debug.Printf("Contents of secrets.json:\n%s", secrets_text)
 
 	http.HandleFunc("/", handler)
 	http.ListenAndServe(":80", nil)
+	Debug.Printf("Listening on port 80")
 }

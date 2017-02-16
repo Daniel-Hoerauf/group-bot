@@ -27,12 +27,9 @@ func getJson(url string, target interface{}) error {
 
 func downloadGif(keywords []string) (*bytes.Buffer, error) {
 	url := buildUrl(keywords)
-	fmt.Println(url)
-
 	resp := GiphyResponse{}
 	err := getJson(url, &resp)
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 	gif, err := http.Get(resp.Data.Images.Down.Url)
@@ -48,7 +45,6 @@ func downloadGif(keywords []string) (*bytes.Buffer, error) {
 
 func groupmeImageHost(gif *bytes.Buffer) (img string, err error) {
 
-	// token := os.Getenv("GROUPME_ACCESS_TOKEN")
 	token := secrets.Token
 	url := fmt.Sprintf("https://image.groupme.com/pictures?access_token=%s", token)
 
@@ -57,10 +53,9 @@ func groupmeImageHost(gif *bytes.Buffer) (img string, err error) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 	defer resp.Body.Close()
-	fmt.Println(resp.Body)
 	bin, _ := ioutil.ReadAll(resp.Body)
 
 	response := GroupmeResponse{}
