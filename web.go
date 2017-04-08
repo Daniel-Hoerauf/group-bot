@@ -9,6 +9,8 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"math/rand"
+	"time"
 )
 
 var (
@@ -39,6 +41,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	response := GroupmeContent{}
 	json.Unmarshal(message, &response)
 	go giphy(response)
+	go supreme(response)
 	response_text, _ := json.MarshalIndent(response, "", "\t")
 	Debug.Printf("Received message!\n%s", response_text)
 }
@@ -81,6 +84,44 @@ func giphy(message GroupmeContent) {
 	}
 }
 
+func supreme(message GroupmeContent) {
+	if (message.Sender == "bot") {
+		return
+	}
+	var sup SUPREMEBot
+	group := message.Group
+	for _, bot := range secrets.SUPREME {
+		if bot.Group == group {
+			sup = bot
+			break
+		}
+	}
+	if (sup == SUPREMEBot{}) {
+		return
+	}
+	val := rand.Intn(100)
+	if (sup.Odds > val) {
+		Debug.Printf("%+v\n", sup)
+		postURL := "https://api.groupme.com/v3/bots/post"
+		params := GroupmePost{sup.BotId, "SUPREME", []PostImg{}}
+		binData, _ := json.Marshal(params)
+		req, err := http.NewRequest("Post", postURL, bytes.NewBuffer(binData))
+		if err != nil {
+			Error.Printf("SUPREME error %s", err)
+		}
+		req.Header.Set("Content-Type", "application/json")
+
+		client := &http.Client{}
+		resp, err := client.Do(req)
+		if err != nil {
+			Error.Printf("SUPREME error %s", err)
+		}
+		defer resp.Body.Close()
+	}
+
+
+}
+
 func postGif(imgLoc string, token string) error {
 	postURL := "https://api.groupme.com/v3/bots/post"
 	params := GroupmePost{token, "", []PostImg{PostImg{"image", imgLoc}}}
@@ -97,6 +138,7 @@ func postGif(imgLoc string, token string) error {
 func main() {
 	Debug = log.New(os.Stdout, "GROUP_BOT: ", log.Ldate|log.Ltime)
 	Error = log.New(os.Stderr, "ERROR: ", log.Ldate|log.Ltime)
+	rand.Seed(time.Now().UTC().UnixNano())
 
 	content, err := ioutil.ReadFile("secrets.json")
 	if err != nil {

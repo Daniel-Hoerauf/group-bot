@@ -1,14 +1,21 @@
 package main
 
 type TokenFile struct {
-	Token     string     `json:"access_token"`
-	Bots      []GroupBot `json:"bots"`
-	BlackList []string   `json:"blacklist"`
+	Token     string	`json:"access_token"`
+	Bots      []GroupBot	`json:"bots"`
+	BlackList []string	`json:"blacklist"`
+	SUPREME   []SUPREMEBot	`json:"SUPREME"`
 }
 
 type GroupBot struct {
 	Group string `json:"group"`
 	BotId string `json:"bot_id"`
+}
+
+type SUPREMEBot struct {
+	Group string `json:"group"`
+	BotId string `json:"bot_id"`
+	Odds  int    `json:"odds"`
 }
 
 type GroupmeContent struct {
